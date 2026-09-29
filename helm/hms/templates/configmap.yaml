@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hms.fullname" . }}-config
+  labels:
+    {{- include "hms.labels" . | nindent 4 }}
+data:
+  DB_HOST: "{{ include "hms.fullname" . }}-mysql"
+  DB_PORT: "{{ .Values.mysql.port }}"
+  PORT: "{{ .Values.backend.port }}"
+  NODE_ENV: "{{ .Values.backend.env.nodeEnv }}"
+  BACKEND_HOST: "{{ include "hms.fullname" . }}-backend"
+  BACKEND_PORT: "{{ .Values.backend.port }}"

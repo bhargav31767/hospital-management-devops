@@ -1,0 +1,68 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: hms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-hospital_db}
+      MYSQL_USER: ${MYSQL_USER:-hms_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-hms_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - hms-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hms-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-hms_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-hms_password}
+      DB_NAME: ${MYSQL_DATABASE:-hospital_db}
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - hms-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hms-frontend
+    restart: unless-stopped
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: 5000
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - hms-network
+
+networks:
+  hms-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

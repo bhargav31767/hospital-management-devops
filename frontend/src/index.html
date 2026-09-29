@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Navigation Header -->
+    <header class="navbar">
+      <div class="brand">
+        <span class="brand-icon">🏥</span>
+        <span class="brand-title">St. Jude Hospital Management</span>
+      </div>
+      <div class="system-status">
+        <span class="status-indicator" id="statusIndicator"></span>
+        <span id="statusText">Checking system health...</span>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="content">
+      <!-- Stats Row -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-label">Total Patients</span>
+            <span class="metric-value" id="countPatients">-</span>
+          </div>
+          <div class="metric-icon">🧑‍⚕️</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-label">Registered Doctors</span>
+            <span class="metric-value" id="countDoctors">-</span>
+          </div>
+          <div class="metric-icon">👨‍⚕️</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-info">
+            <span class="metric-label">Appointments</span>
+            <span class="metric-value" id="countAppointments">-</span>
+          </div>
+          <div class="metric-icon">📅</div>
+        </div>
+      </section>
+
+      <!-- App Tabs & Views -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('patients')">Patients</button>
+        <button class="tab-btn" onclick="switchTab('doctors')">Doctors</button>
+        <button class="tab-btn" onclick="switchTab('appointments')">Appointments</button>
+      </div>
+
+      <!-- Patients Section -->
+      <section id="tab-patients" class="tab-content active">
+        <div class="section-header">
+          <h2>Patient Registry</h2>
+          <button class="btn btn-primary" onclick="toggleModal('patientModal')">+ Add Patient</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Diagnosis</th>
+                <th>Registered</th>
+              </tr>
+            </thead>
+            <tbody id="patientTableBody">
+              <tr><td colspan="6" class="text-center">Loading patients...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Doctors Section -->
+      <section id="tab-doctors" class="tab-content">
+        <div class="section-header">
+          <h2>Medical Staff</h2>
+          <button class="btn btn-primary" onclick="toggleModal('doctorModal')">+ Add Doctor</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Doctor Name</th>
+                <th>Specialization</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody id="doctorTableBody">
+              <tr><td colspan="4" class="text-center">Loading doctors...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Appointments Section -->
+      <section id="tab-appointments" class="tab-content">
+        <div class="section-header">
+          <h2>Appointments Schedule</h2>
+          <button class="btn btn-primary" onclick="toggleModal('appointmentModal')">+ New Appointment</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Specialization</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentTableBody">
+              <tr><td colspan="6" class="text-center">Loading appointments...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Add Patient Modal -->
+    <div id="patientModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Register New Patient</h3>
+          <span class="close" onclick="toggleModal('patientModal')">&times;</span>
+        </div>
+        <form id="addPatientForm" onsubmit="handlePatientSubmit(event)">
+          <div class="form-group">
+            <label>Patient Full Name</label>
+            <input type="text" id="pName" required placeholder="e.g. John Doe">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" id="pAge" required placeholder="e.g. 35">
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select id="pGender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Diagnosis</label>
+            <input type="text" id="pDiagnosis" required placeholder="e.g. Type 2 Diabetes">
+          </div>
+          <button type="submit" class="btn btn-primary full-width">Save Patient</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Doctor Modal -->
+    <div id="doctorModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Register New Doctor</h3>
+          <span class="close" onclick="toggleModal('doctorModal')">&times;</span>
+        </div>
+        <form id="addDoctorForm" onsubmit="handleDoctorSubmit(event)">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="dName" required placeholder="e.g. Dr. Robert House">
+          </div>
+          <div class="form-group">
+            <label>Specialization</label>
+            <input type="text" id="dSpecialization" required placeholder="e.g. Diagnostics">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="dEmail" required placeholder="e.g. house@hospital.org">
+          </div>
+          <button type="submit" class="btn btn-primary full-width">Save Doctor</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Schedule Appointment</h3>
+          <span class="close" onclick="toggleModal('appointmentModal')">&times;</span>
+        </div>
+        <form id="addAppointmentForm" onsubmit="handleAppointmentSubmit(event)">
+          <div class="form-group">
+            <label>Select Patient</label>
+            <select id="aPatientSelect" required></select>
+          </div>
+          <div class="form-group">
+            <label>Select Doctor</label>
+            <select id="aDoctorSelect" required></select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="aDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary full-width">Schedule</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

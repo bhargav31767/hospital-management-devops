@@ -1,0 +1,30 @@
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+
+# Node dependencies and build artifacts
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE and editor directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker volume mounts / local database files
+data/
+*.sqlite

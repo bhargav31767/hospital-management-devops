@@ -1,0 +1,73 @@
+---
+- name: Deploy Hospital Management System to Kubernetes via Helm
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    namespace: "hms"
+    release_name: "hms"
+    chart_path: "{{ playbook_dir }}/../helm/hms"
+    rollout_timeout: "180s"
+
+  tasks:
+    - name: 1. Verify required CLI tools are installed
+      ansible.builtin.command: "{{ item }} version"
+      loop:
+        - kubectl
+        - helm
+      register: tool_check
+      changed_when: false
+      failed_when: tool_check.rc != 0
+
+    - name: 2. Ensure target Kubernetes namespace exists
+      ansible.builtin.command: "kubectl create namespace {{ namespace }} --dry-run=client -o yaml | kubectl apply -f -"
+      register: ns_result
+      changed_when: "'created' in ns_result.stdout"
+
+    - name: 3. Deploy or upgrade application via Helm
+      ansible.builtin.command: >
+        helm upgrade --install {{ release_name }} {{ chart_path }}
+        --namespace {{ namespace }}
+        --wait
+        --timeout {{ rollout_timeout }}
+      register: helm_result
+      changed_when: true
+
+    - name: 4. Wait for MySQL deployment rollout
+      ansible.builtin.command: >
+        kubectl rollout status deployment/{{ release_name }}-mysql
+        --namespace {{ namespace }}
+        --timeout={{ rollout_timeout }}
+      changed_when: false
+
+    - name: 5. Wait for Backend deployment rollout
+      ansible.builtin.command: >
+        kubectl rollout status deployment/{{ release_name }}-backend
+        --namespace {{ namespace }}
+        --timeout={{ rollout_timeout }}
+      changed_when: false
+
+    - name: 6. Wait for Frontend deployment rollout
+      ansible.builtin.command: >
+        kubectl rollout status deployment/{{ release_name }}-frontend
+        --namespace {{ namespace }}
+        --timeout={{ rollout_timeout }}
+      changed_when: false
+
+    - name: 7. Fetch deployed pods and services status
+      ansible.builtin.command: "kubectl get pods,svc -n {{ namespace }} -o wide"
+      register: k8s_status
+      changed_when: false
+
+    - name: 8. Display deployment status
+      ansible.builtin.debug:
+        msg: |
+          ==================================================
+           Hospital Management System Deployment Successful
+          ==================================================
+          Namespace: {{ namespace }}
+          Release:   {{ release_name }}
+
+          Current Kubernetes Resources:
+          {{ k8s_status.stdout }}

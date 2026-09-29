@@ -1,0 +1,78 @@
+# Global settings
+nameOverride: ""
+fullnameOverride: ""
+
+# MySQL Database configuration
+mysql:
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  port: 3306
+  auth:
+    database: hospital_db
+    username: hms_user
+    password: hms_password
+    rootPassword: hms_root_password
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Backend API configuration
+backend:
+  replicaCount: 2
+  image:
+    repository: hms-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 5000
+  service:
+    type: ClusterIP
+    port: 5000
+  env:
+    nodeEnv: production
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  probes:
+    liveness:
+      initialDelaySeconds: 20
+      periodSeconds: 15
+    readiness:
+      initialDelaySeconds: 10
+      periodSeconds: 5
+
+# Frontend Web configuration
+frontend:
+  replicaCount: 2
+  image:
+    repository: hms-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 80
+  service:
+    type: NodePort
+    port: 80
+    nodePort: 30080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+  probes:
+    liveness:
+      initialDelaySeconds: 10
+      periodSeconds: 15
+    readiness:
+      initialDelaySeconds: 5
+      periodSeconds: 5

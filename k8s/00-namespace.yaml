@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hms
+  labels:
+    app.kubernetes.io/name: hospital-management-system
+    app.kubernetes.io/part-of: hms

@@ -1,0 +1,8 @@
+{
+  "name": "hms-frontend",
+  "version": "1.0.0",
+  "description": "Hospital Management System Frontend",
+  "scripts": {
+    "build": "node -e \"const fs = require('fs'); fs.mkdirSync('dist', { recursive: true }); fs.cpSync('src', 'dist', { recursive: true });\""
+  }
+}
